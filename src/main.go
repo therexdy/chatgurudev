@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-const publicDirBase string = "/home/rexdy/pf/expt/goserve/public"
+const publicDirBase string = "public folder path"
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(http.Dir(publicDirBase+"/home/")).ServeHTTP(w, r)
