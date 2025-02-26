@@ -13,7 +13,7 @@ if (typeof(Storage) === "undefined") {
 
 var currentChat;
 
-const origin = "http://"+window.location.hostname+":11434";
+const origin = window.location.href;
 console.log("Response from this origin:",origin)
 
 function retrieveChats() {
@@ -27,6 +27,15 @@ function retrieveChats() {
 }
 
 var allchats = retrieveChats();
+
+function renderMarkdown(element, markdownText) {
+  if (element && markdownText) {
+      const converter = new showdown.Converter();
+      element.innerHTML = converter.makeHtml(markdownText);
+  } else {
+      console.error("Invalid element or markdown text.");
+  }
+}
 
 function reFreshChats(){
   allchats = retrieveChats();
@@ -109,12 +118,12 @@ function loadChat(chatName) {
 
   history.messages.forEach(function(message) {
       const messageElement = document.createElement('p');
-      messageElement.textContent = message.content;
-
       if (message.role === "user") {
-          messageElement.className = "usermessage";
+        messageElement.textContent = message.content;
+        messageElement.className = "usermessage";
       } else {
-          messageElement.className = "botmessage";
+        renderMarkdown(messageElement, message.content);
+        messageElement.className = "botmessage";
       }
 
       chatbox.append(messageElement);
@@ -210,7 +219,7 @@ function sendPrompt(promptText){
   const history = JSON.parse(localStorage.getItem(currentChat));
   console.log(history.model);
   const messages = history.messages;
-  const url = origin+'/api/chat';
+  const url = origin+'api';
   console.log("Requesting ", url);
   messages.push({"role":"user", "content": promptText});
   const data = {
@@ -236,13 +245,14 @@ function sendPrompt(promptText){
       console.log('Success:', data);
       messages.push(data.message);
       const messageElement = document.createElement('p');
-      messageElement.className = "usermessage";
-      messageElement.textContent = data.message.content;
+      messageElement.className = "botmessage";
+      renderMarkdown(messageElement, data.message.content);
       const chatContainer = document.getElementById('messages');
       chatContainer.appendChild(messageElement);
       messageInput.value = '';
       chatContainer.scrollTop = chatContainer.scrollHeight;
       const newHistory = {
+        "model" : history.model,
         "messages" : messages
       }
       localStorage.removeItem(currentChat);
