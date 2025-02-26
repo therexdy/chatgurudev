@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -11,16 +10,6 @@ import (
 	"path/filepath"
 	"time"
 )
-
-type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-type RequestData struct {
-	Model    string    `json:"model"`
-	Messages []Message `json:"messages"`
-}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	cwd, err := os.Getwd()
@@ -37,38 +26,17 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	remoteAddr := r.RemoteAddr
-	var model string
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&model)
-	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-	var requestData RequestData
-	er := decoder.Decode(&requestData)
-	if er != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-	var lastMessage Message
-	if len(requestData.Messages) > 0 {
-		lastMessage = requestData.Messages[len(requestData.Messages)-1]
-	} else {
-		fmt.Fprint(w, "No messages received.\n")
-	}
-	fmt.Println("Serving ", lastMessage.Content, " : ", model, " to ", remoteAddr)
-	log.Println("Serving ", lastMessage.Content, " : ", model, " to ", remoteAddr)
-
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
+	bodyString := string(body)
+	log.Println("\n" + remoteAddr + "\n" + bodyString)
 	forwardURL := "http://127.0.0.1:11434/api/chat"
 	forwardReq, err := http.NewRequest("POST", forwardURL, bytes.NewBuffer(body))
 	if err != nil {
@@ -126,6 +94,7 @@ func main() {
 	//Port number must be changed to 80 for http and 443 for https before deploying
 	port := "8080"
 	log.Printf("Server starting on port %s...", port)
+	fmt.Printf("Server starting on port %s...", port)
 
 	// Creating a server and configuring port and mux
 	server := &http.Server{
