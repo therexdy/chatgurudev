@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const nukeButton = document.getElementById('nuke');
 
   newChatButton.addEventListener('click', function(){
-    const name = createNewChat("llama3.2:1b");
+    const name = createNewChat("llama3.3");
     loadChat(name);
   });
 
