@@ -92,7 +92,7 @@ func main() {
 	//mux.HandleFunc("/about", aboutHandler)
 
 	//Port number must be changed to 80 for http and 443 for https before deploying
-	port := "8080"
+	port := "50505"
 	log.Printf("Server starting on port %s...", port)
 	fmt.Printf("Server starting on port %s...", port)
 

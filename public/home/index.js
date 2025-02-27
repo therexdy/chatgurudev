@@ -14,7 +14,13 @@ if (typeof(Storage) === "undefined") {
 var currentChat;
 
 const origin = window.location.href;
-console.log("Response from this origin:",origin)
+console.log("Response from this origin:", origin);
+
+// Define available models
+const availableModels = [
+  { id: "llama3.2:1b", name: "Llama 3.2 (1B)" },
+  { id: "llama3.2:70b", name: "Llama 3.2 (70B)" },
+];
 
 function retrieveChats() {
   const chats = [];
@@ -49,7 +55,7 @@ function reFreshChats(){
       loadChat(this.textContent);
     });
     chatlist.appendChild(element);
-});
+  });
 }
 
 function nuke(){
@@ -93,25 +99,39 @@ function loadChat(chatName) {
   modelName.width = "30%";
   infobar.appendChild(modelName);
 
-  var renameElement = document.createElement('img');
-  renameElement.src = "misc/edit_icon.png";
-  renameElement.width = 20;
-  renameElement.height = 20;
-  renameElement.className = "icons";
-  renameElement.addEventListener('click', function() {
-      // renameChat();
-  });
-  infobar.appendChild(renameElement);
-
   var deleteElement = document.createElement('img');
+  deleteElement.id = "deleteButton";
   deleteElement.src = "misc/delete_icon.png";
   deleteElement.width = 20;
   deleteElement.height = 20;
   deleteElement.className = "icons";
   deleteElement.addEventListener('click', function() {
-      // deleteChat();
+      deleteChat(chatName);
   });
   infobar.appendChild(deleteElement);
+
+  var renameElement = document.createElement('img');
+  renameElement.id = "renameButton";
+  renameElement.src = "misc/edit_icon.png";
+  renameElement.width = 20;
+  renameElement.height = 20;
+  renameElement.className = "icons";
+  renameElement.addEventListener('click', function() {
+      const renameBar = document.createElement('input');
+      renameBar.type = "text";
+      renameBar.id = "renameChatName";
+      renameBar.placeholder = "New Chat Name";
+      renameBar.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter'){
+              const renameText = renameBar.value;
+              if (renameText.trim() !== '') {
+                  renameChat(currentChat, renameText);
+              }
+          }
+      });
+      infobar.appendChild(renameBar);
+  });
+  infobar.appendChild(renameElement);
 
   const chatbox = document.getElementById("messages");
   chatbox.innerHTML = '';
@@ -157,7 +177,7 @@ function loadChat(chatName) {
       }
   });
 
-  textbox.addEventListener('keydown', function(){
+  textbox.addEventListener('keydown', function(event) {
     if (event.key === 'Enter'){
       const messageInput = document.getElementById('messageInput');
       const chatContainer = document.getElementById('messages');
@@ -182,7 +202,7 @@ function loadChat(chatName) {
 function createNewChat(model){
   const initialMessage = {
     "role": "user",
-    "content": "Hello?"
+    "content": ""
   }
   const chat = {
     "model" : model,
@@ -198,28 +218,89 @@ function createNewChat(model){
   return chatName;
 }
 
+function displayModelSelector() {
+  const chatbox = document.getElementById("messages");
+  chatbox.innerHTML = '';
+  
+  const modelSelectionContainer = document.createElement('div');
+  modelSelectionContainer.id = "modelSelectionContainer";
+  modelSelectionContainer.className = "model-selection";
+  
+  const title = document.createElement('h3');
+  title.textContent = "Select a model for your new chat:";
+  modelSelectionContainer.appendChild(title);
+  
+  availableModels.forEach(model => {
+    const modelOption = document.createElement('div');
+    modelOption.className = "model-option";
+    modelOption.addEventListener('click', function() {
+      const chatName = createNewChat(model.id);
+      loadChat(chatName);
+    });
+    
+    const modelName = document.createElement('p');
+    modelName.className = "model-name";
+    modelName.textContent = model.name;
+    
+    const modelId = document.createElement('p');
+    modelId.className = "model-id";
+    modelId.textContent = model.id;
+    
+    modelOption.appendChild(modelName);
+    modelOption.appendChild(modelId);
+    modelSelectionContainer.appendChild(modelOption);
+  });
+  
+  chatbox.appendChild(modelSelectionContainer);
+  
+  const infobar = document.getElementById("infobar");
+  infobar.innerHTML = '';
+  var nameElement = document.createElement('p');
+  nameElement.textContent = "Select a Model";
+  nameElement.width = "100%";
+  infobar.appendChild(nameElement);
+  
+
+  const searchbar = document.getElementById("searchbar");
+  searchbar.innerHTML = '';
+}
+
 function renameChat(oldName, newName){
   const object = localStorage.getItem(oldName);
+  const allChats = retrieveChats();
+  if (allChats.includes(newName)){
+    alert("Name already Exists");
+    const renameBar = document.getElementById("renameChatName");
+    if (renameBar) {
+      renameBar.placeholder = "Name Already Exists";
+    }
+    return;
+  }
   if (object) {
     localStorage.setItem(newName, object);
     localStorage.removeItem(oldName);
   } else {
-      console.log('No object found with the key:', oldKey);
+    console.log('No object found with the key:', oldName);
   }
   loadChat(newName);
+  currentChat = newName;
   reFreshChats();
 }
 
 function deleteChat(name){
   localStorage.removeItem(name);
   reFreshChats();
+  const chatbox = document.getElementById("messages");
+  chatbox.textContent = "Chat deleted. Select another chat or create a new one.";
+  const infobar = document.getElementById("infobar");
+  infobar.innerHTML = '';
 }
 
 function sendPrompt(promptText){
   const history = JSON.parse(localStorage.getItem(currentChat));
   console.log(history.model);
   const messages = history.messages;
-  const url = origin+'api';
+  const url = origin + 'api';
   console.log("Requesting ", url);
   messages.push({"role":"user", "content": promptText});
   const data = {
@@ -249,7 +330,10 @@ function sendPrompt(promptText){
       renderMarkdown(messageElement, data.message.content);
       const chatContainer = document.getElementById('messages');
       chatContainer.appendChild(messageElement);
-      messageInput.value = '';
+      const messageInput = document.getElementById('messageInput');
+      if (messageInput) {
+        messageInput.value = '';
+      }
       chatContainer.scrollTop = chatContainer.scrollHeight;
       const newHistory = {
         "model" : history.model,
@@ -260,13 +344,13 @@ function sendPrompt(promptText){
   })
   .catch(error => {
       console.error('Error:', error);
+      const chatContainer = document.getElementById('messages');
+      const errorElement = document.createElement('p');
+      errorElement.className = "error";
+      errorElement.textContent = "An error occurred while sending your message. Please try again.";
+      chatContainer.appendChild(errorElement);
   });
 }
-
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', function(){
   reFreshChats();
@@ -275,8 +359,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const nukeButton = document.getElementById('nuke');
 
   newChatButton.addEventListener('click', function(){
-    const name = createNewChat("llama3.3");
-    loadChat(name);
+    displayModelSelector();
   });
 
   nukeButton.addEventListener('click', function(){
@@ -288,6 +371,4 @@ document.addEventListener('DOMContentLoaded', function(){
     nameElement.width = "70%";
     infobar.appendChild(nameElement);
   });
-
-
 });
