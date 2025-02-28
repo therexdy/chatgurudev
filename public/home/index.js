@@ -230,24 +230,24 @@ function displayModelSelector() {
   title.textContent = "Select a model for your new chat:";
   modelSelectionContainer.appendChild(title);
   
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = "button-container";
+  modelSelectionContainer.appendChild(buttonContainer);
+  
   availableModels.forEach(model => {
-    const modelOption = document.createElement('div');
-    modelOption.className = "model-option";
-    modelOption.addEventListener('click', function() {
+    const modelButton = document.createElement('button');
+    modelButton.className = "model-button";
+    modelButton.addEventListener('click', function() {
       const chatName = createNewChat(model.id);
       loadChat(chatName);
     });
     
-    const modelName = document.createElement('p');
+    const modelName = document.createElement('span');
     modelName.className = "model-name";
     modelName.textContent = model.name;
     
-    const modelId = document.createElement('p');
-    modelId.className = "model-id";
-    modelId.textContent = model.id;
-    
-    modelOption.appendChild(modelName);
-    modelSelectionContainer.appendChild(modelOption);
+    modelButton.appendChild(modelName);
+    buttonContainer.appendChild(modelButton);
   });
   
   chatbox.appendChild(modelSelectionContainer);
@@ -259,7 +259,6 @@ function displayModelSelector() {
   nameElement.width = "100%";
   infobar.appendChild(nameElement);
   
-
   const searchbar = document.getElementById("searchbar");
   searchbar.innerHTML = '';
 }

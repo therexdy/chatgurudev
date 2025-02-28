@@ -169,3 +169,30 @@ body{
     font-family: 'rowbol','Courier New', Courier, monospace;
     font-size: 5vh;
 }
+
+.model-button {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background-color: var(--bg1);
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s;
+  }
+  
+  .model-button:hover {
+    background-color: var(--bg2);
+  }
+  
+  .model-button:active {
+    background-color: #dee2e6;
+  }
+  
+  .model-name {
+    font-weight: 500;
+  }
+
+  #modelSelectionContainer{
+    justify-content: space-between;
+  }
