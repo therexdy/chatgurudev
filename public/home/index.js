@@ -247,7 +247,6 @@ function displayModelSelector() {
     modelId.textContent = model.id;
     
     modelOption.appendChild(modelName);
-    modelOption.appendChild(modelId);
     modelSelectionContainer.appendChild(modelOption);
   });
   
@@ -300,7 +299,7 @@ function sendPrompt(promptText){
   const history = JSON.parse(localStorage.getItem(currentChat));
   console.log(history.model);
   const messages = history.messages;
-  const url = origin + 'api';
+  const url = '/api';
   console.log("Requesting ", url);
   messages.push({"role":"user", "content": promptText});
   const data = {
