@@ -1,0 +1,12 @@
+2025/02/28 11:06:17 Server starting on port 50505...
+2025/02/28 11:06:24   /home/rexdy/pf/chatgurudev/public
+2025/02/28 11:06:24   /home/rexdy/pf/chatgurudev/public
+2025/02/28 11:06:31 
+192.168.113.4:47568
+{"model":"llama3.2:1b","messages":[{"role":"user","content":""},{"role":"user","content":"hello"}],"stream":false}
+2025/02/28 11:06:50 
+192.168.113.4:47568
+{"model":"llama3.2:1b","messages":[{"role":"user","content":""},{"role":"user","content":"hello"},{"role":"assistant","content":"Hello! How can I assist you today?"},{"role":"user","content":"hey"}],"stream":false}
+2025/02/28 11:07:06 
+192.168.113.4:47568
+{"model":"llama3.2:1b","messages":[{"role":"user","content":""},{"role":"user","content":"hello"},{"role":"assistant","content":"Hello! How can I assist you today?"},{"role":"user","content":"hey"},{"role":"assistant","content":"Hey back at ya. What's on your mind?"},{"role":"user","content":"hows your day"}],"stream":false}
