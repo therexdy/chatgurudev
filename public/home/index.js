@@ -19,7 +19,7 @@ console.log("Response from this origin:", origin);
 // Define available models
 const availableModels = [
   { id: "llama3.2:1b", name: "Llama 3.2 (1B)" },
-  { id: "llama3.2:70b", name: "Llama 3.2 (70B)" },
+  { id: "llama3.2:3b", name: "Llama 3.2 (3B)" },
 ];
 
 function retrieveChats() {
