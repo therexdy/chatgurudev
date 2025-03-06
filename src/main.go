@@ -43,7 +43,6 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating forward request", http.StatusInternalServerError)
 		return
 	}
-	forwardReq.Header = r.Header.Clone()
 	client := &http.Client{}
 	forwardResp, err := client.Do(forwardReq)
 	if err != nil {
@@ -98,7 +97,7 @@ func main() {
 
 	// Creating a server and configuring port and mux
 	server := &http.Server{
-		Addr:    ":" + port,
+		Addr:    "0.0.0.0:" + port,
 		Handler: mux,
 	}
 

@@ -19,7 +19,7 @@ console.log("Response from this origin:", origin);
 // Define available models
 const availableModels = [
   { id: "llama3.2:1b", name: "Llama 3.2 (1B)" },
-  { id: "llama3.2:70b", name: "Llama 3.2 (70B)" },
+  { id: "llama3.2:3b", name: "Llama 3.2 (3B)" },
 ];
 
 function retrieveChats() {
@@ -230,25 +230,24 @@ function displayModelSelector() {
   title.textContent = "Select a model for your new chat:";
   modelSelectionContainer.appendChild(title);
   
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = "button-container";
+  modelSelectionContainer.appendChild(buttonContainer);
+  
   availableModels.forEach(model => {
-    const modelOption = document.createElement('div');
-    modelOption.className = "model-option";
-    modelOption.addEventListener('click', function() {
+    const modelButton = document.createElement('button');
+    modelButton.className = "model-button";
+    modelButton.addEventListener('click', function() {
       const chatName = createNewChat(model.id);
       loadChat(chatName);
     });
     
-    const modelName = document.createElement('p');
+    const modelName = document.createElement('span');
     modelName.className = "model-name";
     modelName.textContent = model.name;
     
-    const modelId = document.createElement('p');
-    modelId.className = "model-id";
-    modelId.textContent = model.id;
-    
-    modelOption.appendChild(modelName);
-    modelOption.appendChild(modelId);
-    modelSelectionContainer.appendChild(modelOption);
+    modelButton.appendChild(modelName);
+    buttonContainer.appendChild(modelButton);
   });
   
   chatbox.appendChild(modelSelectionContainer);
@@ -260,7 +259,6 @@ function displayModelSelector() {
   nameElement.width = "100%";
   infobar.appendChild(nameElement);
   
-
   const searchbar = document.getElementById("searchbar");
   searchbar.innerHTML = '';
 }
@@ -300,7 +298,7 @@ function sendPrompt(promptText){
   const history = JSON.parse(localStorage.getItem(currentChat));
   console.log(history.model);
   const messages = history.messages;
-  const url = origin + 'api';
+  const url = '/api';
   console.log("Requesting ", url);
   messages.push({"role":"user", "content": promptText});
   const data = {
