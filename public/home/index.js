@@ -16,10 +16,10 @@ var currentChat;
 const origin = window.location.href;
 console.log("Response from this origin:", origin);
 
-// Define available models
 const availableModels = [
-  { id: "llama3.2:1b", name: "Llama 3.2 (1B)" },
-  { id: "llama3.2:3b", name: "Llama 3.2 (3B)" },
+  { id: "gemma3:1b", name: "Gemma 3 1B" },
+  { id: "qwen3:1.7b", name: "Qwen 3 1.7B" },
+  { id: "qwen2.5-coder:1.5b", name: "Qwen 2.5 Coder 1.5B" },
 ];
 
 function retrieveChats() {

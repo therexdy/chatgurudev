@@ -25,16 +25,20 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
+
 	remoteAddr := r.RemoteAddr
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
+
 	bodyString := string(body)
 	log.Println("\n" + remoteAddr + "\n" + bodyString)
 	forwardURL := "http://127.0.0.1:11434/api/chat"
@@ -43,6 +47,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating forward request", http.StatusInternalServerError)
 		return
 	}
+
 	client := &http.Client{}
 	forwardResp, err := client.Do(forwardReq)
 	if err != nil {
@@ -50,21 +55,26 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer forwardResp.Body.Close()
+
 	forwardBody, err := io.ReadAll(forwardResp.Body)
 	if err != nil {
 		http.Error(w, "Error reading forward response body", http.StatusInternalServerError)
 		return
 	}
+
 	for key, values := range forwardResp.Header {
 		for _, value := range values {
 			w.Header().Add(key, value)
 		}
 	}
+
 	w.WriteHeader(forwardResp.StatusCode)
 	w.Write(forwardBody)
+
 }
 
 func main() {
+
 	timestamp := time.Now().Format("20060102_150405")
 	logFileName := "app_" + timestamp + ".log"
 	logDir := "../logs/"
@@ -79,31 +89,16 @@ func main() {
 	defer file.Close()
 	log.SetOutput(file)
 
-	// Declaring the Mux
 	mux := http.NewServeMux()
 
-	// Mapping request directories to handler functions
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/api", apiHandler)
-	// .
-	// .
-	// .
-	//mux.HandleFunc("/about", aboutHandler)
 
-	//Port number must be changed to 80 for http and 443 for https before deploying
-	port := "50505"
+	port := "9127"
+
 	log.Printf("Server starting on port %s...", port)
 	fmt.Printf("Server starting on port %s...", port)
 
-	// Creating a server and configuring port and mux
-	server := &http.Server{
-		Addr:    "0.0.0.0:" + port,
-		Handler: mux,
-	}
+	http.ListenAndServe(":"+port, mux)
 
-	// Starting the server
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Fatal("ListenAndServe error: ", err)
-	}
 }
